@@ -1542,3 +1542,10 @@
 {"level":"info","message":"App listening http://localhost:5000","service":"identity-service","timestamp":"2025-06-04T06:46:18.624Z"}
 {"level":"info","message":"Connected to Redis","service":"identity-service","timestamp":"2025-06-04T06:46:18.686Z"}
 {"level":"info","message":"Connected to mongodb","service":"identity-service","timestamp":"2025-06-04T06:46:19.570Z"}
+{"level":"info","message":"App listening http://localhost:5001","service":"identity-service","timestamp":"2025-06-04T14:05:15.864Z"}
+{"level":"info","message":"Connected to Redis","service":"identity-service","timestamp":"2025-06-04T14:05:15.920Z"}
+{"level":"info","message":"Connected to mongodb","service":"identity-service","timestamp":"2025-06-04T14:05:16.810Z"}
+{"level":"info","message":"Received POST request to /api/auth/register","service":"identity-service","timestamp":"2025-06-04T14:05:28.263Z"}
+{"level":"info","message":"Request body, [object Object]","service":"identity-service","timestamp":"2025-06-04T14:05:28.264Z"}
+{"level":"info","message":"Registration user hit...","service":"identity-service","timestamp":"2025-06-04T14:05:28.291Z"}
+{"level":"warn","message":"User already exists with email or username","service":"identity-service","timestamp":"2025-06-04T14:05:28.454Z"}
