@@ -9,3 +9,12 @@ export const validateRegistration = (data) => {
 
   return schema.validate(data);
 };
+
+export const validatelogin = (data) => {
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).max(50).required(),
+  });
+
+  return schema.validate(data);
+};
