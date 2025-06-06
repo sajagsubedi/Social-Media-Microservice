@@ -13,16 +13,7 @@ const generateTokens = async (user) => {
       expiresIn: "60m",
     }
   );
-
   const refreshToken = crypto.randomBytes(40).toString("hex");
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 7);
-
-  await RefreshTokenModel.create({
-    token: refreshToken,
-    user: user._id,
-    expiresAt,
-  });
 
   return { accessToken, refreshToken };
 };
