@@ -157,4 +157,39 @@ const refreshToken = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, refreshToken };
+const logoutUser = async (req, res) => {
+  logger.info("Logout user hit...");
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      logger.warn("Refresh token is required for logout");
+      return res.status(400).json({
+        message: "Refresh token is required",
+        success: false,
+      });
+    }
+
+    const storedToken = await RefreshTokenModel.findOne({ token });
+
+    if (!storedToken) {
+      logger.warn("Invalid refresh token for logout");
+      return res.status(401).json({
+        message: "Invalid refresh token",
+        success: false,
+      });
+    }
+
+    await RefreshTokenModel.deleteOne({ token });
+
+    res.status(200).json({
+      success: true,
+      message: "User logged out successfully!",
+    });
+  } catch (err) {
+    logger.error("Logout error occurred!", err);
+    res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
+
+export { registerUser, loginUser, refreshToken, logoutUser };
