@@ -7,6 +7,7 @@ import { RateLimiterRedis } from "rate-limiter-flexible";
 import cors from "cors";
 import errorHandler from "./middleware/errorHandler.js";
 import proxy from "express-http-proxy";
+import { validateToken } from "./middleware/authMiddleware.js";
 
 dotenv.config();
 const app = express();
@@ -77,6 +78,23 @@ app.use(
     },
     userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
       logger.info("Response from Identity Service:", proxyRes.statusCode);
+      return proxyResData;
+    },
+  })
+);
+
+app.use(
+  "/v1/posts",
+  validateToken,
+  proxy(process.env.POST_SERVICE_URL, {
+    ...proxyOptions,
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      proxyReqOpts.headers["Content-Type"] = "application/json";
+      proxyReqOpts.headers["x-user-id"] = srcReq.user.userId;
+      return proxyReqOpts;
+    },
+    userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+      logger.info("Response from Post Service:", proxyRes.statusCode);
       return proxyResData;
     },
   })
