@@ -86,4 +86,33 @@ const getAllPosts = async (req, res) => {
   }
 };
 
-export { createPost, getAllPosts };
+const getPostById = async (req, res) => {
+  logger.info("Get post by id hit...");
+  const postId = req.params.id;
+  try {
+    const cacheKey = `post:${postId}`;
+    const cachedPost = await req.redisClient.get(cacheKey);
+
+    if (cachedPost) {
+      logger.info("Returning cached post");
+      return res.status(200).json(JSON.parse(cachedPost));
+    }
+
+    const post = await PostModel.findById(postId);
+
+    if (!post) {
+      return res
+        .status(404)
+        .json({ message: "Post not found", success: false });
+    }
+
+    await req.redisClient.setex(cacheKey, 500, JSON.stringify(post));
+
+    res.status(200).json(post);
+  } catch (err) {
+    logger.error("Error fetching post by id", err);
+    res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
+
+export { createPost, getAllPosts, getPostById };
