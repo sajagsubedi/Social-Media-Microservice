@@ -1,6 +1,7 @@
 import logger from "../utils/logger.js";
 import PostModel from "../models/Post.model.js";
 import { validateCreatePost } from "../utils/validation.js";
+import { consumeEvent, publishEvent } from "../utils/rabbitmq.js";
 
 const invalidatePostCache = async (req, input) => {
   const cachedKey = `post:${input}`;
@@ -115,4 +116,35 @@ const getPostById = async (req, res) => {
   }
 };
 
-export { createPost, getAllPosts, getPostById };
+const deletePostById = async (req, res) => {
+  logger.info("Delete post by id hit...");
+  const postId = req.params.id;
+
+  try {
+    const post = await PostModel.findOneAndDelete({
+      _id: postId,
+      user: req.user._id,
+    });
+    if (!post) {
+      return res
+        .status(404)
+        .json({ message: "Post not found", success: false });
+    }
+
+    await publishEvent("post.deleted", {
+      postId,
+      mediaIds: post.mediaIds,
+    });
+
+    await invalidatePostCache(req, postId);
+    res.status(200).json({
+      message: "Post deleted successfully",
+      success: true,
+    });
+  } catch (err) {
+    logger.error("Error deleting post by id", err);
+    res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
+
+export { createPost, getAllPosts, getPostById, deletePostById };

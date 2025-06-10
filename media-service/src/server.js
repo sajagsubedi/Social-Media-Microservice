@@ -6,6 +6,8 @@ import routes from "./routes/media-routes.js";
 import mongoose from "mongoose";
 import cors from "cors";
 import errorHandler from "./middleware/errorHandler.js";
+import { connectToRabbitMQ, consumeEvent } from "./utils/rabbitmq.js";
+import { handlePostDelete } from "./eventHandlers/media.eventhandler.js";
 
 dotenv.config();
 const app = express();
@@ -33,9 +35,21 @@ app.use((req, res, next) => {
 //routes
 app.use("/api/media", routes);
 
-app.listen(PORT, () => {
-  logger.info(`App listening http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await connectToRabbitMQ();
+
+    await consumeEvent("post.deleted", handlePostDelete);
+
+    app.listen(PORT, () => {
+      logger.info(`App listening http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    logger.error("Error starting server:", error);
+    process.exit(1);
+  }
+}
+startServer();
 
 app.use(errorHandler);
 

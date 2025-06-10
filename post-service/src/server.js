@@ -7,6 +7,7 @@ import routes from "./routes/post-routes.js";
 import mongoose from "mongoose";
 import cors from "cors";
 import errorHandler from "./middleware/errorHandler.js";
+import { connectToRabbitMQ } from "./utils/rabbitmq.js";
 
 dotenv.config();
 const app = express();
@@ -52,11 +53,21 @@ app.use(
   routes
 );
 
-app.listen(PORT, () => {
-  logger.info(`App listening http://localhost:${PORT}`);
-});
-
 app.use(errorHandler);
+
+async function startServer() {
+  try {
+    await connectToRabbitMQ();
+    app.listen(PORT, () => {
+      logger.info(`App listening http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    logger.error("Error starting server:", error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 process.on("unhandledRejection", (reason, promise) => {
   logger.error("Unhandled Rejection at", promise, "reason:", reason);

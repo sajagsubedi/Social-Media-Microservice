@@ -22,3 +22,15 @@ export async function uploadToCloudinary(file) {
       .end(file.buffer);
   });
 }
+
+export async function deleteMediaFromCloudinary(publicId) {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(publicId, (error, result) => {
+      if (error) {
+        console.error("Cloudinary delete error:", error);
+        return reject(error);
+      }
+      resolve(result);
+    });
+  });
+}
