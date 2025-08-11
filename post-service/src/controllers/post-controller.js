@@ -35,6 +35,7 @@ const createPost = async (req, res) => {
       user: req.user._id,
     });
 
+    //invalidate post cache for posts:*
     await invalidatePostCache(req, post._id);
 
     res.status(201).json({
